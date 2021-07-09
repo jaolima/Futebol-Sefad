@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 // plugin that creates slider
 import Slider from "nouislider";
 // @material-ui/core components
@@ -37,6 +37,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import IconButton from "@material-ui/core/IconButton";
 import Close from "@material-ui/icons/Close";
 import Slide from "@material-ui/core/Slide";
+import api, {configRequest} from '../../../services/api';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -75,12 +76,31 @@ Transition.displayName = "Transition";
 
 
 export default function SectionBasics() {
+
   const classes = useStyles();
   const [checked, setChecked] = React.useState([24, 22]);
   const [selectedEnabled, setSelectedEnabled] = React.useState("b");
   const [checkedA, setCheckedA] = React.useState(true);
   const [checkedB, setCheckedB] = React.useState(false);
   const [classicModal, setClassicModal] = React.useState(false);
+  const [champions, setChampions] = React.useState([]);
+  const [table, setTable] = React.useState([]);
+  const [step, setSteps] = React.useState(0);
+
+  useEffect(() => {
+    api.get('campeonatos', configRequest()).then((res) => {
+      const { data } = res; 
+      setChampions(data);
+    })
+  }, [])
+
+  const setTeams = (idChampion) => {
+    api.get(`campeonatos/${idChampion}/tabela`, configRequest()).then((res) => {
+      const { data } = res;
+      setTable(data);
+      setSteps(1);
+    })
+  }
 
   const handleToggle = (value) => {
     const currentIndex = checked.indexOf(value);
@@ -98,7 +118,7 @@ export default function SectionBasics() {
       <div className={classes.container}>
        
         <div className={classes.title}>
-          <h2>Campeonatos</h2>
+          <h2>Competições 2021</h2>
         </div>
         <div id="buttons">
 
@@ -150,6 +170,7 @@ export default function SectionBasics() {
           </Dialog>
 
           <TableContainer component={Paper}>
+          {step === 0 && <>
             <Table className={classes.table} aria-label="customized table">
               <TableHead>
                 <TableRow>
@@ -160,23 +181,64 @@ export default function SectionBasics() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row) => (
-                  <StyledTableRow key={row.name}>
+              
+                {champions.map((row) => (
+                  <StyledTableRow key={row.nome}>
                     <StyledTableCell component="th" scope="row">
-                      {row.name}
+                     <img style={{ height: '150px'}} src={row.logo} />
+                     {row.nome_popular}
                     </StyledTableCell>
-                    <StyledTableCell align="right">{row.calories}</StyledTableCell>
+                    <StyledTableCell align="right">{row.status}</StyledTableCell>
                     <StyledTableCell align="right">{row.fat}</StyledTableCell>
                     <StyledTableCell align="right"><Button
                       block
-                      onClick={() => setClassicModal(true)}
+                      onClick={() => setTeams(row.campeonato_id)}
                     >
                       Visualizar
                     </Button></StyledTableCell>
                   </StyledTableRow>
                 ))}
+          
               </TableBody>
             </Table>
+            </>}
+
+            {step === 1 && <>
+            <Table className={classes.table} aria-label="customized table">
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell>Times</StyledTableCell>
+                  <StyledTableCell align="right">Pontos</StyledTableCell>
+                  <StyledTableCell align="right">Jogos</StyledTableCell>
+                  <StyledTableCell align="right">Vitórias</StyledTableCell>
+                  <StyledTableCell align="right">Derrotas</StyledTableCell>
+                  <StyledTableCell align="right"></StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+            
+                {table.map((row) => (
+                  <StyledTableRow key={row.nome}>
+                    <StyledTableCell component="th" scope="row">
+                     <img style={{ height: '80px'}} src={row.time.escudo} />
+                     {row.time.nome_popular}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">{row.pontos}</StyledTableCell>
+                    <StyledTableCell align="right">{row.jogos}</StyledTableCell>
+                    <StyledTableCell align="right">{row.vitorias}</StyledTableCell>
+                    <StyledTableCell align="right">{row.derrotas}</StyledTableCell>
+                    <StyledTableCell align="right"><Button
+                      block
+                      onClick={() => setTeams(row.time.time_id)}
+                    >
+                      Visualizar
+                    </Button></StyledTableCell>
+                  </StyledTableRow>
+                ))}
+                
+              </TableBody>
+            </Table>
+            </>}
           </TableContainer>
 
         </div>
