@@ -8,7 +8,7 @@ export default api;
 export const configRequest = () => {
     return {
         headers: {
-            Authorization: "Bearer live_46e56f5e2354e915884dc70895e5af"
+            Authorization: "Bearer test_e2c713b92860cb7ad8fd82a279c827"
         }
     }
 }

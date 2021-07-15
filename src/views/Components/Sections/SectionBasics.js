@@ -92,6 +92,7 @@ export default function SectionBasics() {
   const [table, setTable] = React.useState([]);
   const [teams, setTeam] = React.useState([]);
   const [step, setSteps] = React.useState(0);
+  const [indexTeam, setIndexTeam] = React.useState(0);
 
   useEffect(() => {
     api.get('campeonatos', configRequest()).then((res) => {
@@ -116,28 +117,19 @@ export default function SectionBasics() {
     })
   }
 
+  const turnBack = () => {
+    step === 4 ? setSteps(step - 2) : setSteps(step - 1);
+  }
   const match = (type, teamId) => {
-    switch (type) {
-      case 1:
-        // api.get(`times/${teamId}/partidas/proximas`).then((res) => {
-        //   const {data} = res;
-        //   console.log(data)
-        // })
-        break;
-      case 2:
-        // api.get(`times/${teamId}/partidas/anteriores`).then((res) =>{
-        //   const {data} = res;
-        //   console.log(data)
-        // })
-        break;
-      case 3:
-        // api.get(`times/${teamsId}/partidas/ao-vivo`).then((res) => {
-        //   const {data} = res;
-        //   console.log(res)
-        // })
-        break;    
+    table.map((row, i) => {
+      if(row.time.time_id === teamId)
+      setIndexTeam(i);
     }
-    setSteps(3);
+
+    )
+
+    // setIndexTeam(index.findIndex(teamId))
+    type === 2 ? setSteps(4) : setSteps(3);
   }
 
   const handleToggle = (value) => {
@@ -155,218 +147,224 @@ export default function SectionBasics() {
     <div className={classes.sections}>
       <div className={classes.container}>
 
-        <div className={classes.title}>
-          <h2>Competições 2021</h2>
-        </div>
-        <div id="buttons">
-          <button onClick={() => setSteps(step - 1)} >voltar</button>
+        {step === 1 && (
+          <div className={classes.title}>
+            <h2>Competições 2021</h2>
+          </div>
+        )}
 
-          <Dialog
-            classes={{
-              root: classes.center,
-              paper: classes.modal,
-            }}
-            open={classicModal}
-            TransitionComponent={Transition}
-            keepMounted
-            onClose={() => setClassicModal(false)}
-            aria-labelledby="classic-modal-slide-title"
-            aria-describedby="classic-modal-slide-description"
+        {step === 3 && (
+          <div className={classes.title}>
+            <h2>Proximas Partidas</h2>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className={classes.title}>
+            <h2>Partidas Anteriores</h2>
+          </div>
+        )}
+
+        <Button onClick={() => turnBack()} >voltar</Button>
+
+        <Dialog
+          classes={{
+            root: classes.center,
+            paper: classes.modal,
+          }}
+          open={classicModal}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={() => setClassicModal(false)}
+          aria-labelledby="classic-modal-slide-title"
+          aria-describedby="classic-modal-slide-description"
+        >
+          <DialogTitle
+            id="classic-modal-slide-title"
+            disableTypography
+            className={classes.modalHeader}
           >
-            <DialogTitle
-              id="classic-modal-slide-title"
-              disableTypography
-              className={classes.modalHeader}
+            <IconButton
+              className={classes.modalCloseButton}
+              key="close"
+              aria-label="Close"
+              color="inherit"
+              onClick={() => setClassicModal(false)}
             >
-              <IconButton
-                className={classes.modalCloseButton}
-                key="close"
-                aria-label="Close"
-                color="inherit"
-                onClick={() => setClassicModal(false)}
-              >
-                <Close className={classes.modalClose} />
-              </IconButton>
-              <h4 className={classes.modalTitle}>Aqui podem aparecer algumas informações</h4>
-            </DialogTitle>
-            <DialogContent
-              id="classic-modal-slide-description"
-              className={classes.modalBody}
+              <Close className={classes.modalClose} />
+            </IconButton>
+            <h4 className={classes.modalTitle}>Aqui podem aparecer algumas informações</h4>
+          </DialogTitle>
+          <DialogContent
+            id="classic-modal-slide-description"
+            className={classes.modalBody}
+          >
+            <p>
+              .....
+            </p>
+          </DialogContent>
+          <DialogActions className={classes.modalFooter}>
+            <Button
+              onClick={() => setClassicModal(false)}
+              color="danger"
+              simple
             >
-              <p>
-                .....
-              </p>
-            </DialogContent>
-            <DialogActions className={classes.modalFooter}>
-              <Button
-                onClick={() => setClassicModal(false)}
-                color="danger"
-                simple
-              >
-                Fechar
-              </Button>
-            </DialogActions>
-          </Dialog>
+              Fechar
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-          <TableContainer component={Paper}>
-            {step === 0 && <>
-              <Table className={classes.table} aria-label="customized table">
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>Campeonato</StyledTableCell>
-                    <StyledTableCell align="right">Data</StyledTableCell>
-                    <StyledTableCell align="right">Times</StyledTableCell>
-                    <StyledTableCell align="right"></StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
+        <TableContainer component={Paper}>
+          {step === 0 && <>
+            <Table className={classes.table} aria-label="customized table">
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell>Campeonato</StyledTableCell>
+                  <StyledTableCell align="right">Data</StyledTableCell>
+                  <StyledTableCell align="right">Times</StyledTableCell>
+                  <StyledTableCell align="right"></StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
 
-                  {champions.map((row) => (
-                    <StyledTableRow key={row.nome}>
-                      <StyledTableCell component="th" scope="row">
-                        <img style={{ height: '150px' }} src={row.logo} />
-                        {row.nome_popular}
-                      </StyledTableCell>
-                      <StyledTableCell align="right">{row.status}</StyledTableCell>
-                      <StyledTableCell align="right">{row.fat}</StyledTableCell>
-                      <StyledTableCell align="right"><Button
-                        block
-                        onClick={() => setTables(row.campeonato_id)}
-                      >
-                        Visualizar
-                      </Button></StyledTableCell>
-                    </StyledTableRow>
-                  ))}
-
-                </TableBody>
-              </Table>
-            </>}
-
-            {step === 1 && <>
-              <Table className={classes.table} aria-label="customized table">
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>Times</StyledTableCell>
-                    <StyledTableCell align="right">Pontos</StyledTableCell>
-                    <StyledTableCell align="right">Jogos</StyledTableCell>
-                    <StyledTableCell align="right">Vitórias</StyledTableCell>
-                    <StyledTableCell align="right">Derrotas</StyledTableCell>
-                    <StyledTableCell align="right"></StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-
-                  {table.map((row) => (
-                    <StyledTableRow key={row.nome}>
-                      <StyledTableCell component="th" scope="row">
-                        <img style={{ height: '80px' }} src={row.time.escudo} />
-                        {row.time.nome_popular}
-                      </StyledTableCell>
-                      <StyledTableCell align="right">{row.pontos}</StyledTableCell>
-                      <StyledTableCell align="right">{row.jogos}</StyledTableCell>
-                      <StyledTableCell align="right">{row.vitorias}</StyledTableCell>
-                      <StyledTableCell align="right">{row.derrotas}</StyledTableCell>
-                      <StyledTableCell align="right"><Button
-                        block
-                        onClick={() => setTeams(row.time.time_id)}
-                      >
-                        Ver jogos
-                      </Button></StyledTableCell>
-                    </StyledTableRow>
-                  ))}
-
-                </TableBody>
-              </Table>
-            </>}
-
-            {step === 2 && <>
-
-              <Grid container className={classes.root} spacing={2}>
-      <Grid item xs={12}>
-        <Grid container justifyContent="center" spacing={spacing}>
-          {[0, 1, 2].map((value) => (
-            <Grid key={value} item>
-              <Paper className={classes.paper} />
-            </Grid>
-          ))}
-        </Grid>
-      </Grid>
-      <Grid item xs={12}>
-        <Paper className={classes.control}>
-          <Grid container>
-            <Grid item>
-              <FormLabel>spacing</FormLabel>
-              <RadioGroup
-                name="spacing"
-                aria-label="spacing"
-                value={spacing.toString()}
-                onChange={handleChange}
-                row
-              >
-                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
-                  <FormControlLabel
-                    key={value}
-                    value={value.toString()}
-                    control={<Radio />}
-                    label={value.toString()}
-                  />
+                {champions.map((row) => (
+                  <StyledTableRow key={row.nome}>
+                    <StyledTableCell component="th" scope="row">
+                      <img style={{ height: '150px' }} src={row.logo} />
+                      {row.nome_popular}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">{row.status}</StyledTableCell>
+                    <StyledTableCell align="right">{row.fat}</StyledTableCell>
+                    <StyledTableCell align="right"><Button
+                      block
+                      onClick={() => setTables(row.campeonato_id)}
+                    >
+                      Visualizar
+                    </Button></StyledTableCell>
+                  </StyledTableRow>
                 ))}
-              </RadioGroup>
-            </Grid>
-          </Grid>
-        </Paper>
-      </Grid>
-    </Grid>
-    
-              <div className={classes.section}>
-                <div className={classes.container}>
-                  <div id="images">
-                  <GridContainer>
+
+              </TableBody>
+            </Table>
+          </>}
+
+          {step === 1 && <>
+            <Table className={classes.table} aria-label="customized table">
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell>Times</StyledTableCell>
+                  <StyledTableCell align="right">Pontos</StyledTableCell>
+                  <StyledTableCell align="right">Jogos</StyledTableCell>
+                  <StyledTableCell align="right">Vitórias</StyledTableCell>
+                  <StyledTableCell align="right">Derrotas</StyledTableCell>
+                  <StyledTableCell align="right"></StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+
+                {table.map((row) => (
+                  <StyledTableRow key={row.nome}>
+                    <StyledTableCell component="th" scope="row">
+                      <img style={{ height: '80px' }} src={row.time.escudo} />
+                      {row.time.nome_popular}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">{row.pontos}</StyledTableCell>
+                    <StyledTableCell align="right">{row.jogos}</StyledTableCell>
+                    <StyledTableCell align="right">{row.vitorias}</StyledTableCell>
+                    <StyledTableCell align="right">{row.derrotas}</StyledTableCell>
+                    <StyledTableCell align="right"><Button
+                      block
+                      onClick={() => setTeams(row.time.time_id)}
+                    >
+                      Ver jogos
+                    </Button></StyledTableCell>
+                  </StyledTableRow>
+                ))}
+
+              </TableBody>
+            </Table>
+          </>}
+
+          {step === 2 && <>
+            <div className={classes.section}>
+              <div className={classes.container}>
+                <div id="images">
+                  <GridContainer justify="center">
+                    <GridItem xs={6} sm={5} className={classes.marginLeft}>
+                      <div className={classes.typo}>
+                        <h1>{teams.nome}</h1>
+                      </div>
+                    </GridItem>
+                  </GridContainer>
+
+                  <GridContainer justify="center">
                     <GridItem xs={12} sm={2} className={classes.marginLeft}>
-                      <h4>{teams.nome}</h4>
+
                       <img
                         src={teams.escudo}
                         alt="..."
                         className={classes.imgRoundedCircle + " " + classes.imgFluid}
                       />
                     </GridItem>
-                    </GridContainer>
-                  </div>
-                </div>
-              </div>
-              <Button onClick={() => match(1, teams.time_id)} >Próximas Partidas</Button>
-              <Button onClick={() => match(2, teams.time_id)}>Partidas Anteriores</Button>
-              <Button onClick={() => match(3, teams.time_id)}>Partidas ao vivo</Button>
-            </>}
 
-            {step === 3 && <>
-              <div className={classes.section}>
-                <div className={classes.container}>
-                  <div id="images">
-                  <GridContainer>
-                    <GridItem xs={12} sm={2} className={classes.marginLeft}>
-                      <h4>Vasco</h4>
-                      <img
-                        src={image}
-                        alt="..."
-                        className={classes.imgRoundedCircle + " " + classes.imgFluid}
-                      />
-                      x
-                      <h4>São Paulo</h4>
-                      <img
-                        src={image}
-                        alt="..."
-                        className={classes.imgRoundedCircle + " " + classes.imgFluid}
-                      />
+                    <GridItem xs={6} sm={12} md={8}>
+                      <Button onClick={() => match(1, teams.time_id)} >Próximas Partidas</Button>
+                      <Button onClick={() => match(2, teams.time_id)}>Partidas Anteriores</Button>
                     </GridItem>
-                    </GridContainer>
-                  </div>
+
+
+                  </GridContainer>
                 </div>
               </div>
-            </>}
-          </TableContainer>
-        </div>
+            </div>
+
+          </>}
+
+          {(step === 3 || step === 4) && <>
+            {table.map((row) => (
+              <>
+                <GridContainer>
+
+                  <GridItem xs={5} sm={6}>
+                    <b>SÁB 17/07/2021</b> MORUMBI <b>17:00</b>
+                  </GridItem>
+                </GridContainer>
+
+                <GridContainer>
+
+                  <GridItem xs={5} sm={2}>
+                    <img
+                      src={table[indexTeam].time.escudo}
+                      style={{ width: '100px' }}
+                      alt="..."
+                      className={classes.imgRounded + " " + classes.imgFluid}
+                    />
+                  </GridItem>
+                  <GridItem xs={12} sm={2}>
+                    <h4>{table[indexTeam].time.nome_popular}</h4>
+                  </GridItem>
+                  <GridItem xs={12} sm={1}>
+                    <h4>X</h4>
+                  </GridItem>
+                  <GridItem xs={12} sm={2}>
+                    <h4>{row.time.nome_popular}</h4>
+                  </GridItem>
+                  <GridItem xs={5} sm={2}>
+                    <img
+                      src={row.time.escudo}
+                      style={{ width: '100px' }}
+                      alt="..."
+                      className={classes.imgRounded + " " + classes.imgFluid}
+                    />
+                  </GridItem>
+                </GridContainer>
+              </>
+            ))}
+            <GridContainer />
+          </>}
+        </TableContainer>
       </div>
     </div>
+
   );
 }
